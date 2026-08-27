@@ -1,0 +1,481 @@
+\documentclass[conference,9pt]{IEEEtran}
+
+% -------------------- Packages --------------------
+\usepackage{graphicx}
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+% Optional: better table column widths
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+% -------------------- Title + Authors --------------------
+\title{\textbf{ResNet18: An Interpretable Deep Learning Framework for Automated Eye-Disease Classification}
+
+\author{
+\begin{tabular}{ccc}
+\textbf{Afrina Alam Lamia} &
+\textbf{Ohiduzzaman Rayhan} &
+\textbf{Sumiaya Sharif} \\
+
+ID: 2022-1-60-231 &
+ID: 2023-1-60-108 &
+ID: 2023-1-60-048 \\
+
+Department of CSE &
+Department of CSE &
+Department of CSE \\
+
+East West University &
+East West University &
+East West University \\
+
+\texttt{afrinaaa0711@gmail.com} &
+\texttt{ohiduzzamanrayhan866@gmail.com} &
+\texttt{sumiayasharif256@gmail.com}
+\end{tabular}
+}
+
+
+}
+
+\begin{document}
+\maketitle
+
+% -------------------- Abstract --------------------
+\begin{abstract}
+Early and accurate eye disease detection is crucial, as observational methods are time-consuming and susceptible to human error. To mitigate these issues, we present a deep-learning based robust framework for multi-class eye disease classification using RGB images. Identified ResNet18 as the optimal model, after evaluating multiple architectures including CNNs, vision transformers and CNN-transformer hybrids. The ResNet18 model achieved a test accuracy of 97.44\% and outperformed other models. The proposed pipeline incorporates image pre-processing (grayscale conversion, CLAHE, Gaussian filtering), data augmentation, and class-balancing using SMOTE. Grad-CAM visualization confirmed that the model focuses on clinically relevant ocular regions, improving interpretability. Extensive evaluation using cross-validation, confidence intervals, and statistical tests verified the reliability and robustness of the approach. This framework shows strong potential as an automated diagnostic tool for eye disease classification within its defined classes.
+\end{abstract}
+
+% Optional keywords
+\begin{IEEEkeywords}
+Medical image classification, Deep learning, CNN, Vision Transformer, Grad-CAM, Eye disease detection
+\end{IEEEkeywords}
+
+% -------------------- 1. Introduction --------------------
+\section{\textbf{Introduction}}
+Eyes are the most crucial and sensitive organ of human structure. This important organ can be affected with multiple diseases, which can lead to permanent damage to the retina. Visual impairment, blindness can affect daily human activities such as reading, walking, recognizing faces \cite{6}. Cataract, eyelid disorder, conjunctivitis, and uveitis are some eye disease that can cause inflammation, redness of the eye and blurry vision. Prolonged exposure to the sunlight can cluster the protein of the eye lens together, results to impaired vision. This process often leads to the development of cataracts. Aging is also a factor of cataract formation \cite{5}. Conjunctivitis, also known as pink eye, causes due to inflammation of conjunctiva \cite{7}. Blindness in 5-20\% of cases in the US and Europe, 25\% of cases developing countries is directly associated by uveitis \cite{8}.
+
+For classifying ophthalmic diseases, doctors typically rely on observational method, which is often time-consuming and susceptible to human error \cite{11}. High cost, lack of awareness, shortages of ophthalmologists often hinder people from taking necessary precautions \cite{9}. These issues imply that ophthalmology has become a prominent sector where application of Deep Learning is crucial. With a proper application of Artificial Intelligence and Deep Learning, these issues can be addressed effectively, where models can classify diseases.
+
+Despite all advancements,the application of transformers and lightweight CNNs for eye disorder recognition using standard eye-images remains sufficiently unexplored. Existing study often emphasize on Fundus or slit-lamp images. Also, many works do not sufficiently address clinical interpretability, which is essential for clinical deployment. Inspired by these limitations, this study introduces a unified framework for multi-class classification using CNN, hybrid and transformer architectures. This study focuses on a deep learning-based eye-disorder classification using simple eye images. CNN can automatically detect prominent attributes without human supervision \cite{12}. Transformer models, on the other hand enables direct interactions among different image regions \cite{13}, while hybrid models combine both CNNs and Transformers. Many studies, for example, Babaqi et al. \cite{9} have focused on only CNN and Transformer-based models for classification. Some researches, for instance, paper \cite{18} are limited only a particular eye-disorder. In our research, we propose a CNN, hybrid, and transformer-based framework to automate eye disease classification from color eye-images.
+
+After evaluating all models, we achieved the best test accuracy of 97.44, when training a ResNet18-based framework for the task of multi-class eye disease classification. A systematic evaluation of CNN, transformer and hybrid models indicated ResNet18 to be the most reliable model. To refine the discriminative qualities of the features, we applied preprocessing techniques and readdressed the class imbalance with SMOTE and augmentation. 
+
+The application of explainable AI, Grad-CAM, showed that the model was concentrating on medically significant regions, and cross-validation with rigorous statistical testing. Including confidence intervals and statistical tests, further validated the model's reliability.
+
+% -------------------- 2. Literature Review --------------------
+\section{\textbf{Literature Review}}
+To understand existing research, select appropriate methodologies, and justify the research gap, a concise literature review is conducted. Based on the imaging modality used for eye disease analysis, the reviewed studies are categorized into the following two groups:
+
+\begin{itemize}
+    \item \textbf{Fundus-Based Approaches:}  
+    D.M. et al. \cite{1}, M.A. et al. \cite{2}, Jain et al. \cite{16}, and Nakayama et al. \cite{8}.
+    
+    \item \textbf{OCT-Based Approaches:}  
+    Zhou et al. \cite{3}, Akça et al. \cite{4}, Topaloglu et al. \cite{14}, and Lin et al. \cite{17}.
+\end{itemize}
+\vspace{0.3cm}
+
+\subsection{\textbf{Fundus-Based Approaches}}
+D.M. et al. \cite{1} used four pre-trained CNN models to achieve accurate multiclass classification of eye diseases from external eye images.Four pre-trained models (VGG16, ResNet50, InceptionV3 and MobileNetV2) were fine tuned using ImageNet weights. Adam Optimizer, cross-entropy loss were used to train the models and 10 epochs for ReLU activation. The confusion metrices and evaluation metrices (F1- score, recall, precision, accuracy) were used to evaluate and compare the performance of the models. Best accuracy was achieved by ResNet50. \\
+
+M.A. et al. \cite{2} have proposed a Multi-Level Deep Convolutional Neural Network (ML-DCNN) for glaucoma detection and categorisation based on fundus images.
+The network is optimised using an Adam optimiser with a cross-entropy loss function for model evaluation using accuracy, sensitivity, specificity, and precision, along with a confusion matrix. The proposed ML-DCNN demonstrated a high accuracy of 99.39\%, which is better than other existing solutions.\\
+
+Nakayama et al. \cite{8} introduced CAD-EYE, a hybrid deep learning model for the classification of eye diseases.
+The CAD-EYE model is a combination of MobileNetV2 and EfficientNetB0 with feature fusion and uses an XGBoost classifier. The model used global average pooling and dense layers with ReLU and SoftMax activation functions and trained using the Adam optimiser and cross-entropy function for 10 epochs. Accuracy, F1-score, recall, and precision were used for evaluation, and CAD-EYE reported 98\% accuracy, which outperformed other models, including VGG16, ResNet50, and InceptionV3.\\
+
+
+Jain et al. \cite{16} proposed the Adaptive Hybrid Net-CNN: a binary \& multi-class eye disease detection using a deep hybrid model with InceptionV3, MobileNetV3-Small, ResNet-101, \& Adaptive CNN layers. The binary dataset split is train/test = 80/20 while multi-class datasets split into three classes \& SMOTE.The evaluation metrics used were acc, F1-score, precision, recall, sensitivity \& specificity. The model resulted in a higher accuracy rate \& sensitivity with 98.45\% \& 96.36\%, respectively.\\
+
+\subsection{\textbf{OCT-Based Approaches}}
+Zhou et al. \cite{3} proposed a ViT-based model with multiclass classification of retinal diseases using OCT images with NORMAL, CNV, DME, and DRUSEN classes.Features were learned in this model using image patching, token embedding involving positional encoding, and multi-head self-attention.It was evaluated on the basis of accuracy, sensitivity, specificity, and confusion matrices with 96.57\% validation accuracy and 95.76\% test accuracy over EfficientNet, ResNet50, and VGG16 models.\\
+
+Akça et al.\cite{4} performed a comparative analysis of vision transformer architectures for multiclass classification of retinal diseases from OCT images using transformers.
+A balanced subset of the Labelled OCT dataset with CNV, DME, Drusen, and Normal classes was utilised. Among the attention-driven models, Vision Transformer (ViT), T2T-ViT, and Mobile-ViT were tested using the AdamW optimizer with cross-entropy loss and standard evaluation metrics such as accuracy, precision, recall, F1-score, and confusion matrices. Among all models, the highest accuracy of 99.17\% was obtained using Mobile-ViT.\\
+
+Hemalakshmi et al. \cite{14} developed a lightweight hybrid deep learning model called SViT for accurate classification of retinal OCT images.The proposed approach applies both SqueezeNet for local feature extraction and the Vision Transformer (ViT) for the handling of global relationships in the image to support both two-class classification (normal and retinal disease) and multiclass classification (normal, DME, CNV, and Drusen) of the retinal disease.The SViT model achieved an initial validation accuracy of 90.27\% and performed very well in both binary and multiclass classification tasks. The drawback of the paper is the potential large computational cost required in the training process of the proposed hybrid model.\\
+
+Lin et al. \cite{17} employed a Two-StreamCNN-Transformer architecture for the classification of retinal disease.
+Spatial features were modeled by CNNs, and transformers interpreted overall information. The Adam optimiser and cross-entropy loss function, data augmentation techniques of rotation, flip, cropping, and adding Gaussian noise were employed. Accuracy of 96\%, F1-score of 0.96, and an AUC of 1.00 were achieved by LGSF-Net, outperforming ResNet50, ViT, Swin, and InceptionV3 models while utilising lower parameters of 18.7K and FLOPs of 0.93G.\\
+
+% -------------------- 3. Methodology --------------------
+\section{\textbf{Methodology}}
+\vspace{-0.3em}
+In this section, we have discussed the methods used for the classification of eye-disease using simple RGB eye images. The overall approach is demonstrated in Fig. 1, which illustrates the workflow from data collection to correct prediction of eye diseases among five distinctive classes.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{figures/workfloww.jpeg}
+    \caption{Overall workflow of the proposed eye disease classification framework.}
+    \label{fig:workflow}
+\end{figure}
+
+
+\subsection{\textbf{Dataset Description }}
+    For eye-disease classification study, we have used a publicly available dataset from Mendeley Data repository \cite{dataset} This particular dataset is designed to automate eye disease detection using image-based analysis. It consists of real-world clinical RGB eye-images of five categories: Cataract, Conjunctivitis, Eyelid, Normal and Uveitis – each containing images after SMOTE (Synthetic Minority Over-sampling Technique) was applied, ensuring a balanced distribution among classes. 
+    
+\begin{table}[H]
+\centering
+\caption{Class-wise Data Distribution.}
+\label{tab:dataset_dist}
+\begin{tabular}{l c}
+\toprule
+\textbf{Class} & \textbf{Image Count} \\
+\midrule
+Cataract & 544 \\
+Conjunctivitis & 357 \\
+Eyelid & 525 \\
+Normal & 649 \\
+Uveitis & 223 \\
+\bottomrule
+\end{tabular}
+\end{table}
+% Example figure slot
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figures/classsample.png}
+\caption{Sample images per class from the dataset.}
+\label{fig:class_samples}
+\end{figure}
+
+\subsection{\textbf{Data Preprocessing}}
+     A preprocessing pipeline was applied to all raw images for image quality enhancement and noise suppression to ensure the output is compatible with deep learning models. 
+Since OpenCV uses the BGR channel order, BGR to RGB conversion was performed for overall consistency in operation. For stable training, all images were resized to 224×224 pixels. After resizing, the RGB images were transformed to grayscale to reduce color dependency. To boost local contrast and visibility of minor features, Contrast Limited Adaptive Histogram Equalization-CLAHE \cite{clahe} was implemented on the grayscale images, configured with a clip threshold of 2.0 and a grid partition of 8x8 tiles. Following contrast enhancement, a Gaussian filtering using 3x3 convolution kernel was employed to minimize high-frequency noises. 
+As a final step, two of widely known image quality metrices – Peak Signal to Noise Ratio (PSNR) and Structural Similarity Index (SSIM) were computed on first 200 processed images. 
+
+
+
+% Figure: Preprocessed
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figures/preprocessedsamples.png}
+\caption{Pre-processed image samples}
+\label{fig:pre}
+\end{figure}
+
+\subsection{\textbf{Dataset Splitting and Augmentation}}
+Post-preprocessing stage, the dataset was partitioned into train, validation and test subsets to support stable model learning and fair model evaluation. A split directory was created to prevent data leakage from earlier data. Images were randomly shuffled and partitioned using 80:10:10 training, validation and testing ratio, applied independently on each class.
+\begin{table}[H]
+\centering
+\caption{Train/Validation/Test split per class.}
+\label{tab:split}
+\begin{tabular}{l c c c}
+\toprule
+\textbf{Class} & \textbf{Train} & \textbf{Val} & \textbf{Test} \\
+\midrule
+Cataract & 435 & 54 & 55 \\
+Conjunctivitis & 285 & 35 & 37 \\
+Eyelid & 420 & 52 & 53 \\
+Normal & 519 & 64 & 66 \\
+Uveitis & 178 & 22 & 23 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Data augmentation was exclusively performed on the training set only to promote generalization while preventing overfitting effects. Inputs were uniformly rescaled to 224x224 and subjected to stochastic transformations by random horizontal flipping and minor angular rotations (±10°). In contrast, the validation and test sets left unchanged to ensure fair and unbiased evaluation. Finally, the entire dataset was transformed into tensors followed by normalization using ImageNet statistical values, enabling consistent input scaling for learning pretrained models.
+
+\subsection{\textbf{Model Architectures and Training Strategy}}
+
+
+\subsubsection{\textbf{Evaluated CNN and Transformer Models}}
+
+To systematically evaluate the efficacy of CNN \cite{resnet} and Vision Transformer architectures \cite{vit,swin,mobilevit,levit}  for clinical eye disease classification, a range of pretrained models were trained with standardize preprocessing and training settings. The models are as follows:
+
+\begin{itemize}
+    \item \textbf{Swin-Tiny}:A hierarchical vision transformer model that computes self-attention inside overlapping local windows supporting both global and local image features. An ImageNet-pretrained Swin-Tiny network was fine-tuned for eye-disorder diagnosis by replacing the output head with a custom classification layer. Dropout regularization was also employed to limit overfitting.
+
+    \item \textbf{DeiT-Tiny}: A data-efficient Image transformer suited for scares data scenerios through efficient training mechanisms. In our process, the DeiT-Tiny architecture initialized with pretrained weights was fine-tuned on the processed data to evaluate the feasibility of small-scale transformer networks.
+
+    \item \textbf{LeViT-256}: A CNN-Transformer hybrid architecture fusing convolutional feature biases with lightweight self-attention layers to reduce computational complexity and minimize inference cost. The pretrained LeViT-256 backbone preserved its high representational capacity by reconfiguring the final fully connected layer and trained with early stopping to improve generalization in medical image classification.
+
+    \item \textbf{MobileViT-XS}: MobileViT-XS fuses lightweight convolutional layers with attention-based transformer modules to learn both local and global context while maintaining computational efficiency. This model was included to examine transformer behavior in low-resource scenarios and was fine-tuned using ophthalmic dataset, following the same preprocessing and training pipeline. 
+
+    \item \textbf{ShuffleNetV2}: A compact parameter-efficient convolutional neural network (CNN) by channel shuffling operations alongside pointwise grouped convolution layers. It functioned as a baseline CNN model with its output head reconfigured by a dropout layer followed by a linear layer to handle five distinctive disease categories.
+\end{itemize}
+
+\subsubsection{\textbf{Proposed ResNet18 Model}}
+
+Among all evaluated architectures, ResNet18 consistently outperformed other models’ performances reflecting robust generalization under all reported metrices. 
+The model follows residual learning framework, where identity shortcut connections enable stable gradient propagation across deep network layers. This characteristic is highly suited for medical image analysis, where subtle textural patterns and detailed visual cues must be retained. In this study, the ImageNet-pretrained ResNet18 was modified by replacing the final FC layer with a regularized linear classification head to limit model overfitting. Label smoothing was also introduced within cross-entropy loss formulation to reduce over-confident predictions and applied AdamW optimization with weight decay to promote model generalization. Later on, gradient magnitude clipping and adaptive learning rate scheduling were employed to ensure stable training. The combination of robust CNN inductive biases, strong regularization techniques and transfer-based optimization outperform both CNNs and transformer model architectures on the eye-disease prediction task. 
+Fig. 5 illustrates the architecture of ResNet18-CNN Model \cite{resnet}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{figures/merged_cnn_architecture.png}
+    \caption{ResNet18- a CNN-based Model Architecture}
+    \label{fig:resnet_arch}
+\end{figure}
+
+\subsection{\textbf{Data Training Strategy}}
+All experiments were conducted using PyTorch deep learning framework on GPU-enabled hardware. Training dataset were augmented, rescaled and normalized to ensure compatibility with pretrained models as stated. This standardized training strategy confirms unbiased and controlled comparison while maximizing task performance.
+\begin{table}[H]
+\centering
+\caption{Training configuration and hyperparameter settings for the proposed model.}
+\label{tab:training_config}
+\begin{tabular}{l l}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+Model & ResNet18 (ImageNet pretrained) \\
+Input Size & $224 \times 224 \times 3$ \\
+Number of Classes & 5 \\
+Optimizer & AdamW \\
+Learning Rate & $3 \times 10^{-4}$ \\
+Weight Decay (L2) & $1 \times 10^{-4}$ \\
+Loss Function & CrossEntropyLoss \\
+Label Smoothing & 0.1 \\
+Batch Size & 32 \\
+Maximum Epochs & 40 \\
+Early Stopping & Yes (patience = 5) \\
+Learning Rate Scheduler & ReduceLROnPlateau \\
+Scheduler Factor & 0.5 \\
+Scheduler Patience & 2 \\
+Gradient Clipping & $\text{max\_norm} = 5.0$ \\
+Dropout Rate & 0.5 \\
+Framework & PyTorch \\
+Device & GPU \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection{\textbf{Evaluation Metrics and Statistical Tests} }
+       Model performance was measured using both traditional and domain-specific metrices. In addition to total accuracy, class-wise evaluation metrices including Sensitivity, Specificity, Positive Predictive Value (PPV), and Negative Predictive Value (NPV) were derived to examine diagnosis performance. For classification accuracy, bootstrap-based Confidence Interval (CI) was computer using iterative resampling of the test set. For statistical comparison, McNemar statistical test was performed to evaluate paired prediction \cite{mcnemar}. It confirms whether performance variations are significantly meaningful. These assessment strategies deliver a thorough evaluation of models’ classification effectiveness.
+
+\subsection{\textbf{Explainable AI using Grad-CAM}}
+For better understanding of the proposed models, Gradient Weighted Class Activation mapping (Grad-CAM) was generated for top-performing model, ResNet18. Grad-CAM produces category-focused heatmaps by analyzing gradients into the final feature extraction layers, highlighting the most relevant regions for classification results. This process allows visual inspection of whether the networks focus on medically relevant eye regions instead or irrelevant non-informative background. 
+
+% -------------------- 4. Results and Discussion --------------------
+\section{\textbf{Results and Discussion}}
+
+\subsection{\textbf{Model Performance Comparison}}
+% Add your performance summary table
+\begin{table}[H]
+\centering
+\caption{Performance comparison of different models on training, validation, and test sets.}
+\label{tab:model_performance}
+\begin{tabular}{l c c c}
+\toprule
+\textbf{Model} & \textbf{Train Accuracy} & \textbf{Validation Accuracy} & \textbf{Test Accuracy} \\
+\midrule
+ResNet18      & 1.0000 & 0.9604 & 0.9744 \\
+Swin-Tiny     & 0.9951 & 0.9559 & 0.9444 \\
+DeiT-Tiny     & 0.9858 & 0.9604 & 0.9359 \\
+LeViT-256     & 0.9989 & 0.9780 & 0.9402 \\
+ShuffleNetV2  & 0.9989 & 0.9648 & 0.9359 \\
+MobileViT-XS  & 0.9940 & 0.9648 & 0.9573 \\
+\bottomrule
+\end{tabular}
+\end{table}
+Table IV reports performance across all data splits (training, validation, test set) of all considered architectures. Among the six evaluated networks, ResNet18 obtained the highest testing accuracy of 97.44\%, indicating stronger generalization ability. Although the model has near-saturated training results, the minor performance gap between training, validation (96.04), and test accuracy confirms that overfitting was well controlled by means of explicit regularization and early stopping. LeVit-256 attained high validation accuracy (97.80\%) but showed a noticeable drop in test performance pointing to moderate overfitting. ShuffleNetV2 and DeiT-Tiny performed well during training but had lower generalization on test data (93.59\%) indicating that compact architectures may have difficulty capturing subtle ocular features with restricted dataset sizes. Vision transformer-based models such as Swin-Tiny and DeiT-tiny showed strong training performance but reflected relatively lower accuracy during evaluation and testing, highlighting shortcomings in extracting class-specific patterns from existing dataset scale. The MobileViT-XS hybrid model outperformed transformer-only models, achieving a 95.73\% accuracy on test set, demonstrating  the benefits of incorporating convolutional feature biases with transformer attention layers. Overall analysis shows CNN architectures delivered more stable and consistent accuracy across all data splits, making ResNet18 the most robust model for ocular disease classification.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{figures/comparison.png}
+    \caption{Model-wise train,validation and test accuracy plot. }
+    \label{fig:comparison}
+\end{figure}
+
+\subsection{\textbf{Accuracy and Loss Curve Analysis}}
+% Two figures side by side
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\linewidth}
+\centering
+\includegraphics[width=\linewidth]{figures/acc_curve1.png}
+\caption{Accuracy curve.}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\linewidth}
+\centering
+\includegraphics[width=\linewidth]{figures/loss_curve.png}
+\caption{Loss curve.}
+\end{subfigure}
+\caption{Training and validation learning curves}
+\label{fig:curves}
+\end{figure}
+The training and validation accuracy curve against epochs of the best performing model (ResNet18) exhibit early learning convergence during early epochs, with training accuracy crossing 95\% in the initial training iterations because of ImageNet pretrained weights. As training progress, the model attains almost perfect training accuracy while preserving stable validation performance around 96-97\%. The tight alignment between training and validation curve underscores the effectiveness of stabilization techniques. 
+Similarly, the loss curve exhibits a steady decrease with training loss stabilizing around 0.40 and validation loss near 0.46. No instability or sudden increase in validation loss is noticed, confirming convergence stability and controlled learning behavior. The ultimate test accuracy of 97.44\% closely aligns with validation accuracy, supporting the robustness of the optimized model on unseen data.
+
+\subsection{\textbf{Misclassification Analysis}}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{figures/cmm.png}
+    \caption{Confusion Matrix for best performing model.}
+    \label{fig:cmm}
+\end{figure}
+Fig. 8 illustrates the confusion matrix visualization for the best performing model - ResNet18 analyzed on the test dataset. It shows highly accurate prediction for cataract, eyelid, and Normal classes with zero misclassification cases, reflecting strong class separation. The majority of errors for ResNet18 are concentrated in the Uveitis samples, where a few instances are predicted incorrectly. 3 samples of Uveitis are wrongly predicted as Conjunctivitis which shows a minor contradiction between Conjunctivitis and Uveitis classes. It might happen in case of visual resemblance among inflammatory ocular conditions. However, the prediction model maintain strong diagonal dominance confirming reliable multi-class classification, while identifying Uveitis as the most error-prone class due to inter-class visual overlap. 
+
+\subsection{\textbf{Evaluation Metrics Comparison} }
+\begin{table}[H]
+\centering
+\caption{Comparison of test accuracy, confidence intervals, and macro-averaged medical evaluation metrics across models.}
+\label{tab:advanced_metrics}
+\begin{tabular}{l c c c c c}
+\toprule
+\textbf{Model} &
+\textbf{CI$_{95\%}^{Low}$} &
+\textbf{CI$_{95\%}^{High}$} &
+\textbf{Sensitivity} &
+\textbf{Specificity} &
+\textbf{PPV} \\
+\midrule
+ResNet18 & 0.9530 & 0.9915 & 0.9511 & 0.9936 & 0.9738 \\
+MobileViT-XS & 0.9316 & 0.9829 & 0.9378 & 0.9898 & 0.9379 \\
+Swin-Tiny & 0.9145 & 0.9744 & 0.9249 & 0.9869 & 0.9202 \\
+LeViT-256 & 0.9103 & 0.9701 & 0.9212 & 0.9852 & 0.9296 \\
+DeiT-Tiny & 0.9060 & 0.9658 & 0.9347 & 0.9851 & 0.9135 \\
+ShuffleNetV2 & 0.9060 & 0.9658 & 0.9211 & 0.9847 & 0.9163 \\
+\bottomrule
+\end{tabular}
+\end{table}
+Table V reports detailed comparison of all trained architectures using diagnostic evaluation metrices, including 95\% confidence intervals (CI), macro-averaged sensitivity, specificity, PPV and NPV. Among all, ResNet18 outperformed all other models on the test split (97.44\%), with the tightest CI (95.30\%-99.15\%), indicating robust generalization and statistical stability. ResNet18 also maintained the strongest balance between sensitivity (95.11\%) and specificity (99.36\%), which is crucial for limiting both false-negative and false-positive errors in clinical diagnosis.
+MobileViT-XS achieved second-best performance, particularly in specificity (98.98\%) and NPV (98.98\%), confirming its robustness despite its parameter-efficient design.  Vision transformer models such as Swin-Tiny, LeViT-256, and DeiT-Tiny delivered competitive but slightly lower results , likely due to their strong data dependency. While, ShuffleNetV2 showed efficient computation but modestly decreased sensitivity and PPV, indicating increased misclassification risk in less frequent disease categories. 
+
+
+% Optional McNemar results figure
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figures/mcnemar.png}
+\caption{McNemar paired test to evaluate the statistical significance of the best model.}
+\label{fig:mc}
+\end{figure}
+To systematically assess whether the performance gaps were statistically justified, the McNemar paired test was performed using test-set outputs. The comparison between ResNet18 and MobileViT-XS produced a p-value of 0.289, indicating equivalent statistical performance, even though ResNet18 attained overall higher accuracy. In comparison, the test between ResNet18 and ShuffleNetV2 returned a statistically significant p-value of 0.022, validating a significant performance improvement in the best model. These findings clearly justify ResNet18 as a stable and top-performing architecture, especially relative to lightweight CNN models, while preserving competitive performance against transformer-driven approaches. Fig.9 represents The McNemar paired test results comparing ResNet18 with MobileViT-XS and ShuffleNetV2 by showcasing the distribution of discordant prediction pairs and their corresponding p-values. 
+
+\subsection{\textbf{5-Fold Cross-Validation Result}}
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figures/cv.png}
+\caption{5-fold cross-validation validation accuracy across folds (ResNet18).}
+\label{fig:cv}
+\end{figure}
+    To further assess the consistency and generalization ability of the proposed pipeline, a 5-fold cross-validation experiment was introduced using the optimized model ResNet18. Fig. 9 shows the gradual cross-validation accuracy of the best model against each fold. The dataset was segmented into five non-overlapping folds, where each fold was used as validation in one iteration while the remaining four folds were assigned to training. The validation accuracy across five folds stayed uniformly high, ranging roughly between 96.5 and 97.4\%, indicating stable training dynamics. The small dispersion across fold results demonstrates that the model is insensitive to data splits. This consistency validates that the learned visual features are consistent and generalizable.
+
+\subsection{\textbf{Grad-CAM Visualization}}
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figures/grad1.png}
+\label{fig:gradcam}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figures/grad2.png}
+\caption{Grad-CAM visualizations highlighting discriminative regions.}
+\label{fig:gradcam}
+\end{figure}
+
+   The GRAD-CAM visualization of the proposed model ResNet18 is shown in Figure X. Gradient-weighted Class Activation Mapping (Grad-CAM) was applied to interpret the prediction behavior of the highest-performing model, resNet18, by visualizing the spatial regions that had the strongest impact on the predictions \cite{gradcam}. As illustrated in the Grad-CAM visuals, the model repeatedly emphasized medically relevant ocular regions, especially the iris and adjacent corneal regions rather than irrelevant or background areas. For Uveitis cases, the heatmaps emphasize the central eye region, aligned with inflammation-prone regions. While Cataract samples show high attention over the lens area where lens opacity occurs. The alignment between high-activation regions and clinically recognized abnormalities indicates that the model captured meaningful disease-related features. This improves interpretability and supports the medical plausibility of the proposed system.
+
+\subsection{\textbf{Model Comparison with Previous Study}}
+\begin{table}[H]
+\centering
+\caption{Comparison with Previous Eye Disease Classification Studies}
+\label{tab:oct_comparison}
+\renewcommand{\arraystretch}{1.25}
+\Large
+
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{|c|c|c|p{3.8cm}|}
+\hline
+\textbf{Study} & \textbf{Model} & \textbf{Test Acc. (\%)} & \textbf{Key Limitations} \\ \hline
+Zhou et al. \cite{3} & Vision Transformer (ViT) & 95.76 & OCT-dependent; no statistical validation \\ \hline
+Akça et al. \cite{4} & Mobile-ViT & 99.17 & High computational resources; limited explainability \\ \hline
+Hemalakshmi et al. \cite{14} & SViT (SqueezeNet + ViT) & 90.27 & Increased training cost due to hybrid model \\ \hline
+Lin et al. \cite{17} & Two-Stream CNN-Transformer (LGSF-Net) & 96.00 & Complex architecture; lacks hyperparameter tuning \\ \hline
+\textbf{Our Study} & \textbf{ResNet18 (Optimized)} & \textbf{97.44} & \textbf{None reported} \\ \hline
+\end{tabular}%
+}
+\end{table}
+While other works primarily rely on OCT images, fundus images or complex hybrid architectures, our proposed method performs disease classification by using simple eye images-a direction that is largely unexplored in the current literature. This study sets a baseline benchmark for future studies investigating eye disease classification using easily accessible non-OCT imaging data by achieving competitive accuracy with an optimized ResNet18 and reduced architectural complexity.
+
+
+
+
+
+   
+% -------------------- 5. Conclusion --------------------
+\section{\textbf{Conclusion }}
+This study presented a robust deep learning framework combining CNNs and transformers for multi-class eye disease classification using colored ocular images. Thorough experimental evaluation across six modern architectures revealed that ResNet18 yielded the best overall performance with a test accuracy of 97.44\%, macro sensitivity of 95.11\% and macro specificity of 99.36\%, indicating strong consistency and generalization. Five-fold cross-validation additionally verified the robustness of the model with an average validation accuracy of approximately 96.8\%. Grad-CAM based interpretability analysis revealed that model predictions were guided by clinically significant eye areas. Although the current system is restricted to a limited set of five ocular disease classes and cannot accommodate unseen or rare conditions. This confined phenomenon creates a scope in future to expand the work by including more disorder categories and multimodal clinical patient information. Overall, the framework demonstrates strong potential as a reliable and effective automated diagnosis system within its specific classes.
+
+% -------------------- References --------------------
+\bibliography{\textbf{references}}
+\begin{thebibliography}{99}
+\bibitem{1}
+Bitto, A.K., Ahmed, M., Rabbi, M.R., Hossen, A., Masum, A.K.M. and Farid, D.M., 2025, July. Explainable AI Based Transfer Learning with for Multiclass Eye Disease Classification from External Eye Images. In 2025 International Conference on Quantum Photonics, Artificial Intelligence, and Networking (QPAIN) (pp. 1-7). IEEE.
+
+\bibitem{2}
+Aamir, M., Irfan, M., Ali, T., Ali, G., Shaf, A., S, A.S., Al-Beshri, A., Alasbali, T. and Mahnashi, M.H., 2020. An adoptive threshold-based multi-level deep convolutional neural network for glaucoma eye disease detection and classification. Diagnostics, 10(8), p.602.
+\bibitem{3}
+Zhou, Z., Niu, C., Yu, H., Zhao, J., Wang, Y. and Dai, C., 2023, March. Diagnosis of retinal diseases using the vision transformer model based on optical coherence tomography images. In SPIE-CLP Conference on Advanced Photonics 2022 (Vol. 12601, p. 1260102). SPIE
+\bibitem{4}
+ Akça, S., Garip, Z., Ekinci, E. and Atban, F., 2024. Automated classification of choroidal neovascularization, diabetic macular edema, and drusen from retinal OCT images using vision transformers: a comparative study. Lasers in Medical Science, 39(1), p.140.
+\bibitem{5}
+R.M., Bhavadharini et al. “Eye Disease Detection Using Deep Learning Models with Transfer Learning Techniques.” EAI Endorsed Trans. Scalable Inf. Syst. 12 (2024): n. pag.
+\bibitem{6}
+Wahab Sait, A.R., 2023. Artificial intelligence-driven eye disease classification model. Applied Sciences, 13(20), p.11437
+\bibitem{7}
+Mondal, S., Banerjee, S., Mukherjee, S., Ganguly, A. and Sengupta, D., 2022. Deep Classifier for Conjunctivitis–A Three-Fold Binary Approach. Int J Math Sci Comput, 2, pp.46-54.
+\bibitem{8}
+Nakayama, L.F., Ribeiro, L.Z., Dychiao, R.G., Zamora, Y.F., Regatieri, C.V., Celi, L.A., Silva, P., Sobrin, L. and Belfort Jr, R., 2023. Artificial intelligence in uveitis: A comprehensive review. Survey of Ophthalmology, 68(4), pp.669-677.
+\bibitem{9}
+Mondal, S., Banerjee, S., Mukherjee, S., Ganguly, A. and Sengupta, D., 2022. Deep Classifier for Conjunctivitis–A Three-Fold Binary Approach. Int J Math Sci Comput, 2, pp.46-54.
+\bibitem{10}
+Nakayama, L.F., Ribeiro, L.Z., Dychiao, R.G., Zamora, Y.F., Regatieri, C.V., Celi, L.A., Silva, P., Sobrin, L. and Belfort Jr, R., 2023. Artificial intelligence in uveitis: A comprehensive review. Survey of Ophthalmology, 68(4), pp.669-677.
+\bibitem{11}
+Babaqi, T., Jaradat, M., Yildirim, A.E., Al-Nimer, S.H. and Won, D., 2023. Eye disease classification using deep learning techniques. arXiv preprint arXiv:2307.10501.   
+\bibitem{12}
+https://ijrpr.com/uploads/V6ISSUE6/IJRPR49399.pdf
+\bibitem{13}
+Abdullah, A.A., Aldhahab, A. and Al Abboodi, H.M., 2024. Review of eye diseases detection and classification using deep learning techniques. In BIO Web of Conferences (Vol. 97, p. 00012). EDP Sciences. 
+\bibitem{14}
+Hemalakshmi, G.R., Murugappan, M., Sikkandar, M.Y., Begum, S.S. and Prakash, N.B., 2024. Automated retinal disease classification using hybrid transformer model (SViT) using optical coherence tomography images. Neural Computing and Applications, 36(16), pp.9171-9188.
+\bibitem{15}
+Muhammad. (2024). A Review of Transformer-Based Models for Computer Vision Tasks: Capturing Global Context and Spatial Relationships. 10.48550/arXiv.2408.15178.
+\bibitem{16}
+Ayesha, Noor. (2025). A Vision Transformer-Based Convolutional Neural Network for the Automated Diagnosis of Eye Diseases Using Self-Attention Mechanisms. Engineering, Technology \& Applied Science Research. 15. 24493-24497. 10.48084/etasr.10649.
+\bibitem{17}
+Topaloglu, Ismail. (2022). Deep Learning Based Convolutional Neural Network Structured New Image Classification Approach for Eye Disease Identification. Scientia Iranica. 10.24200/SCI.2022.58049.5537.
+\bibitem{18}
+Jain, Piyush. (2025). A Hybrid Deep Learning Approach for Eye Disease Detection with Integrating Adaptive CNN Layers for Improved Performance of Image Classification. Journal of Information Systems Engineering and Management. 10. 898-914. 10.52783/jisem.v10i38s.7006.
+\bibitem{19}
+Lin, Ankang. (2025). Efficient fusion transformer model for accurate classification of eye diseases. Scientific Reports. 15. 10.1038/s41598-025-20226-z.
+
+\bibitem{dataset}
+S. K. Das et al., “Eye Disease Image Dataset,” Mendeley Data, vol. 1, 2021. [Online]. Available: https://data.mendeley.com/datasets/n9zp473wfw/1
+
+\bibitem{resnet}
+K. He, X. Zhang, S. Ren, and J. Sun, “Deep residual learning for image recognition,” in \emph{Proc. IEEE Conf. Computer Vision and Pattern Recognition (CVPR)}, 2016, pp. 770–778.
+
+\bibitem{vit}
+A. Dosovitskiy et al., “An image is worth 16×16 words: Transformers for image recognition at scale,” in \emph{Proc. Int. Conf. Learning Representations (ICLR)}, 2021.
+
+\bibitem{swin}
+Z. Liu et al., “Swin transformer: Hierarchical vision transformer using shifted windows,” in \emph{Proc. IEEE/CVF Int. Conf. Computer Vision (ICCV)}, 2021, pp. 10012–10022.
+
+\bibitem{mobilevit}
+S. Mehta and M. Rastegari, “MobileViT: Light-weight, general-purpose, and mobile-friendly vision transformer,” in \emph{Proc. Int. Conf. Learning Representations (ICLR)}, 2022.
+
+\bibitem{levit}
+B. Graham et al., “LeViT: A vision transformer in convnet’s clothing for faster inference,” in \emph{Proc. IEEE/CVF Int. Conf. Computer Vision (ICCV)}, 2021.
+
+\bibitem{gradcam}
+R. R. Selvaraju et al., “Grad-CAM: Visual explanations from deep networks via gradient-based localization,” in \emph{Proc. IEEE Int. Conf. Computer Vision (ICCV)}, 2017, pp. 618–626.
+
+\bibitem{clahe}
+K. Zuiderveld, “Contrast limited adaptive histogram equalization,” in \emph{Graphics Gems IV}, Academic Press, 1994, pp. 474–485.
+
+\bibitem{mcnemar}
+Q. McNemar, “Note on the sampling error of the difference between correlated proportions or percentages,” \emph{Psychometrika}, vol. 12, no. 2, pp. 153–157, 1947.
+
+\bibitem{medical_metrics}
+T. Fawcett, “An introduction to ROC analysis,” \emph{Pattern Recognition Letters}, vol. 27, no. 8, pp. 861–874, 2006.
+
+
+\end{thebibliography}
+
+\end{document}
