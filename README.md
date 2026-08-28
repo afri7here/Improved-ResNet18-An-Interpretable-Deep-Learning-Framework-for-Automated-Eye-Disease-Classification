@@ -12,7 +12,7 @@
 **Authors:** A. A. Lamia · O. Rayhan · S. Sharif
 
 This project develops a **deep learning-based system for classifying five eye diseases from simple RGB eye images**. Multiple CNN, Transformer, and hybrid architectures were compared, with an **optimized ResNet18** achieving the best overall performance. 
-
+### Dataset Used: https://data.mendeley.com/datasets/n9zp473wfw/1
 ## ✨ Key Highlights
 
 - 🩺 **5-class classification:** Cataract, Conjunctivitis, Eyelid, Normal & Uveitis
